@@ -4,9 +4,12 @@ import datetime
 from flask import render_template_string, request, render_template, current_app, flash, redirect, url_for, session, make_response
 from . import app
 
+def seive(string):
+    return string.replace("'", "").replace("-", "").replace('"', '')
 
 def isLoggedIn(session):
-    r = current_app.db.execute(f"select * from admins where session = '{session}'").first()
+    fs = seive(session)
+    r = current_app.db.execute(f"select * from admins where session = '{fs}'").first()
     return r != None
 
 @app.route('/', methods=["GET","POST"])

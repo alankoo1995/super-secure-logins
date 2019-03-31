@@ -7,6 +7,19 @@ session_start();
 
 $logged_in = false;
 
+function filter_user_string($str) {
+    $str = str_replace('-', '', $str);
+    $str = str_replace("'", '', $str);
+    $str = str_replace('"', '', $str);
+    return $str;
+}
+
+function identify_special_char($str) {
+    return strstr($str, '-') 
+        || strstr($str, "'") 
+        || strstr($str, '"');
+}
+
 // carey: Since we want to test this without having people install a webserver
 if (!isset($_SERVER['HTTP_HOST']) && count($argv) > 1) {
     parse_str($argv[1], $_POST);
@@ -23,8 +36,12 @@ if(isset($_POST['submit'])) {
     $db = new DB();
     $username = $_POST["username"];
     $password = $_POST["password"];
-    $query = "SELECT * from users WHERE username='$username' AND password='$password'";
-    $results = $db->querySingle($query,true);
+    if (identify_special_char($username) || identify_special_char($password)) {
+        $results = false;
+    } else {
+        $query = "SELECT * from users WHERE username='$username' AND password='$password'";
+        $results = $db->querySingle($query,true);
+    }
 
     if($results) {
         echo 'SUCCESS';
